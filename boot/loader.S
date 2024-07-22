@@ -1,6 +1,7 @@
 %include "boot.inc"
 SECTION loader vstart=LOADER_BASE_ADDR
 LOADER_STACK_TOP equ LOADER_BASE_ADDR 		   ;保护模式下栈的初始化
+
 jmp loader_start                      		   ;下面存放数据段 构建gdt 跳跃到下面的代码区
 
 				       		   ;对汇编再复习 db define byte,dw define word,dd define dword
@@ -19,29 +20,113 @@ jmp loader_start                      		   ;下面存放数据段 构建gdt 跳�
     GDT_SIZE              equ $ - GDT_BASE               ;当前位置减去GDT_BASE的地址 等于GDT的大小
     GDT_LIMIT       	   equ GDT_SIZE - 1   	           ;SIZE - 1即为最大偏移量
     
-    times 60 dq 0                             	   ;预留60个 四字型 描述符
-    SELECTOR_CODE        equ (0X0001<<3) + TI_GDT + RPL0    ;16位寄存器 4位TI RPL状态 GDT剩下的选择子
-    SELECTOR_DATA	  equ (0X0002<<3) + TI_GDT + RPL0
-    SELECTOR_VIDEO       equ (0X0003<<3) + TI_GDT + RPL0
-    
+    times 59 dq 0                             	   ;预留60个 四字型 描述符
+    times 5 db 0
+
+
+    ; 保存内存容量
+    total_mem_bytes dd 0
     ;gdt指针 2字gdt界限放在前面 4字gdt地址放在后面 lgdt 48位格式 低位16位界限 高位32位起始地址
     gdt_ptr           dw GDT_LIMIT
     		       dd GDT_BASE
     
-    loadermsg db   'welcome to loader zone!'                  ;loadermsg 加载区显示字符
+    ; loadermsg db   'welcome to loader zone!'                  ;loadermsg 加载区显示字符
     
+; 手动对齐地址 4+6+244+2 = 256  不知道为什么没有算上面的地址
+    ards_buf times 244 db 0
+    ards_nr dw 0            ; 记录ards结构体的数量
+
+    SELECTOR_CODE        equ (0X0001<<3) + TI_GDT + RPL0    ;16位寄存器 4位TI RPL状态 GDT剩下的选择子
+    SELECTOR_DATA	  equ (0X0002<<3) + TI_GDT + RPL0
+    SELECTOR_VIDEO       equ (0X0003<<3) + TI_GDT + RPL0
+
 loader_start:
+
+; int 15th eax = 0000E820h, edx = 534D4150h ('SMAP') 字符串ascii值， 获取内存布局 具体注释看书p181
+
+    xor ebx, ebx            ; ebx 置为0
+    mov edx, 0x534Dd4150    ; edx 只赋值一次， 后续不会变
+    mov di, ards_buf        ; ards结构体缓冲区
+.e820_mem_get_loop:         ; 循环获取ards结构体
+    mov eax, 0x0000e820     ; 
+    mov ecx, 20
+    int 0x15
+    jc .e820_failed_so_try_e801  ; 判断cf位是否位1， 为1则表示发生错误用下一种方法
+
+    add di, cx              ; 更新缓冲区指针的位置， 指向下一个空白区
+    inc word [ards_nr]      ; 数量++
+    cmp ebx, 0              ; 如果ebx为0 且cd不为1 说明读取完毕， 进行处理
+    jnz .e820_mem_get_loop
+
+    mov cx, [ards_nr]
+    mov ebx, ards_buf
+    xor ebx, ebx
+
+.find_max_mem_area:
+    mov eax, [ebx]
+    add eax, [ebx+8]
+    add ebx, 20
+    cmp edx, eax
+    jge .next_ards
+    mov edx, eax
+
+.next_ards:
+    loop .find_max_mem_area
+    jmp .mem_get_ok
+
+; -------int 15h ax = E801h 第二种获取内存的方法 最大支持4g
+;   返回后 ax, cx 值一样以kb为单位， bx, dx 值一样单位为64kb
+;   ax和cx中为低16MB, bx和dx为16MB到4GB
+
+.e820_failed_so_try_e801:
+    mov ax, 0xe801
+    int 0x15
+    jc .e801_failed_so_try88
+
+; 先计算出低15MB 的内存
+; ax和cx中以KB为单位将其转换为byte单位
+    mov cx, 0x400
+    mul cx
+    shl edx, 16
+    and eax, 0x0000FFFF
+    or edx, eax
+    add edx, 0x100000       ;ax只是15MB 需要加上1MB
+    mov esi, edx            ; esi暂存备份
+
+; 2 将16MB以上的内存转换为byte单位
+; 寄存器bx和dx中存储
+    xor eax, eax
+    mov ax, bx
+    mov ecx, 0x10000        ; 十进制为64KB
+    mul ecx                 ; 32位乘法, 默认乘数为eax, 高32为存入edx,低32为存入eax
+
+    mov edx, esi
+    add edx, eax            ; 只能测出4GB以内 所以不需要edx寄存器, 只需要加eax
+
     
-    mov sp,LOADER_BASE_ADDR					;这里疑惑了我许久 es我们没有初始化 值究竟是多 为什么等于cs
-    mov bp,loadermsg                                          ;es:bp 字符串地址 ah 功能号 bh 页码 bl 属性 cx 字符串长度 
-    mov cx,22     
-    mov ax,cs                                                 ;于是我还是向把es给初始化了一下 保证心里面有底
-    mov es,ax                                                 ;通过ax 赋值给es
-    mov ax,0x1301                                             ;ah = 13 al = 0x1
-    mov bx,0x001f                                             ;页码属性 可以不管
-    mov dx,0x1800                                             ;dh = 0x18 == 24 意思是最后一行 0列开始
-    int 0x10
-    
+    jmp .mem_get_ok
+
+; ---------int 15h ah = 0x88 获取内存大小, 只能获得64MB之内
+.e801_failed_so_try88:
+    ; int 15 之后ax存入的是以KB为单位的内存容量
+    mov ah, 0x88
+    int 0x15
+    jc .error_hlt
+    and eax, 0x0000FFFF
+; 16位乘法, 被乘数为ax, 积为32位    积的高16位在dx中, 低16位在ax中
+    mov cx, 0x400       ; 十进制为1024 将单位转换为byte
+    mul cx
+    shl edx, 16         ; 将dx移动到高16位处
+    or edx, eax         ; 将低16位移动到edx, 为32位的积
+    add edx, 0x100000   ; 加上1MB 得到原本的大小
+
+
+.error_hlt:
+    jmp $
+
+.mem_get_ok:                    ; 内存大小读取完毕
+    mov [total_mem_bytes], edx
+  
 ; --------------------------------- 设置进入保护模式 -----------------------------
 ; 1 打开A20 gate
 ; 2 加载gdt
@@ -68,9 +153,85 @@ loader_start:
     mov es,ax
     mov ss,ax
     mov esp,LOADER_STACK_TOP
-    mov ax,SELECTOR_VIDEO
-    mov gs,ax
+         
+     ;显示“P”到屏幕上
+        mov ax, SELECTOR_VIDEO
+        mov gs, ax
+        mov byte [gs:160], 'P'
+
+;-------------------------------- 启动分页 -----------------------------------------
+    call setup_page
+
+    sgdt [gdt_ptr]
+
+    mov ebx, [gdt_ptr+2]
+    or dword [ebx+0x18+4], 0xc0000000
+
+    add dword [gdt_ptr+2], 0xc0000000
+    add esp, 0xc0000000
+
+    mov eax, PAGE_DIR_TABLE_POS
+    mov cr3, eax
+
+    mov eax, cr0
+    or eax, 1 << 31
+    mov cr0, eax
+
+    lgdt [gdt_ptr]
+
+    mov eax,SELECTOR_VIDEO
+    mov gs,eax
+    mov byte [gs:320],'V'
     
-    mov byte [gs:160],'P'
-    
-    jmp $          
+    jmp $
+
+;-------------------------------- 创建页表 ------------------------------------------------    
+; 创建页目录和页表
+setup_page:                                     ;清空所用空间
+    mov ecx, 4096
+    mov esi, 0
+.clear_page_dir:
+    mov byte [PAGE_DIR_TABLE_POS + esi], 0
+    inc esi
+    loop .clear_page_dir
+
+; 创建页目录项(PDE)
+.create_pde:
+    mov eax, PAGE_DIR_TABLE_POS
+    add eax, 0x1000                             ;eax位第一个页表的位置及属性
+    mov ebx, eax
+
+    or eax, PG_US_U | PG_RW_W | PG_P
+
+    mov [PAGE_DIR_TABLE_POS + 0x0], eax
+
+    mov [PAGE_DIR_TABLE_POS + 0xc00], eax       ; 0xc00之上属于内核空间
+
+    sub eax, 0x1000
+    mov [PAGE_DIR_TABLE_POS + 4092], eax
+
+    mov ecx, 256
+    mov esi, 0
+    mov edx, PG_US_U | PG_RW_W | PG_P
+
+.create_pte:
+    mov [ebx+esi*4], edx                    ;ebx的值为0x1010000 即第一个页表的地址
+    add edx, 4096
+    inc esi
+    loop .create_pte
+
+    mov eax, PAGE_DIR_TABLE_POS
+    add eax, 0x2000                         ; 此时eax为第二个页表的位置
+    or eax, PG_US_U | PG_RW_W | PG_P
+    mov ebx, PAGE_DIR_TABLE_POS
+    mov ecx, 254                            ; 这里注意循环的次数为254 避坑256!!
+    mov esi, 769
+
+.create_kernal_page:
+    mov [ebx+esi*4], eax
+    inc esi
+    add eax, 0x1000
+    loop .create_kernal_page
+    ret
+
+

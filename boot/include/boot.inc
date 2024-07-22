@@ -3,6 +3,8 @@
 LOADER_START_SECTOR equ 2
 LOADER_BASE_ADDR equ 0x900 
 
+PAGE_DIR_TABLE_POS equ 0x100000
+
 ;-------------------- gdt描述符属性 --------------------------------
 
 DESC_G_4K equ 1_00000000000000000000000b ;第23位G 段界限的单位大小， 0表示1字节，大小为1MB  1代表4kb字节， 大小为4GB
@@ -55,3 +57,10 @@ RPL2    equ 10b
 RPL3    equ 11b
 TI_GDT  equ 000b
 TI_LDT  equ 100b
+
+; 页表相关属性
+PG_P equ 1b
+PG_RW_R equ 00b
+PG_RW_W equ 10b
+PG_US_S equ 000b
+PG_US_U equ 100b

@@ -57,7 +57,7 @@ SECTION MBR vstart=0x7c00 ;起始地址编译在0x7c00
     
     mov bx,LOADER_BASE_ADDR ;把要目标内存位置放进去 bx常作地址储存
     
-    mov cx,1;读取磁盘数 cx常作计数
+    mov cx, 4;读取磁盘数 cx常作计数
     
     call rd_disk_m_16
 
