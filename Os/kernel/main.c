@@ -1,8 +1,8 @@
 #include "print.h"
+#include "init.h"
 void main(void) {    
     put_str("hello kernel...\n");
-    put_int(0);
-    put_char('\n');
-    put_int(9);
+    init_all();
+    asm volatile ("sti");
     while(1);
 }
