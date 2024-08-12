@@ -2,28 +2,96 @@ Bochs internal debugger, type 'help' for help or 'c' to continue
 Switching to CPU0
 Next at t=0
 (0) [0x0000fffffff0] f000:fff0 (unk. ctxt): jmpf 0xf000:e05b          ; ea5be000f0
+sba 00018030724
+Time breakpoint inserted. Delta = 18030724
 c
-Next at t=307954576
-(0) [0x000000001565] 0008:00000000c0001565 (unk. ctxt): nop                       ; 90
-info tab
-cr3: 0x000000100000
-0x0000000000000000-0x00000000000fffff -> 0x000000000000-0x0000000fffff
-0x0000000000100000-0x0000000000102fff -> 0x000000200000-0x000000202fff
-0x00000000c0000000-0x00000000c00fffff -> 0x000000000000-0x0000000fffff
-0x00000000c0100000-0x00000000c0102fff -> 0x000000200000-0x000000202fff
-0x00000000ffc00000-0x00000000ffc00fff -> 0x000000101000-0x000000101fff
-0x00000000fff00000-0x00000000ffffefff -> 0x000000101000-0x0000001fffff
-0x00000000fffff000-0x00000000ffffffff -> 0x000000100000-0x000000100fff
-x/10 0xc009a000
-[bochs]:
-0x00000000c009a000 <bogus+       0>:	0x00000007	0x00000000	0x00000000	0x00000000
-0x00000000c009a010 <bogus+      16>:	0x00000000	0x00000000	0x00000000	0x00000000
-0x00000000c009a020 <bogus+      32>:	0x00000000	0x00000000
-page 0xc0102000
-  PDE: 0x0000000000101067    ps         A pcd pwt U W P
-  PTE: 0x0000000000202067       g pat D A pcd pwt U W P
-linear page 0x00000000c0102000 maps to physical page 0x000000202000
-x 0xc009a000
-[bochs]:
-0x00000000c009a000 <bogus+       0>:	0x00000007
-quit
+(0) Caught time breakpoint
+Next at t=18030724
+(0) [0x000000001f50] 0008:00000000c0001f50 (unk. ctxt): cmp cl, 0x08              ; 80f908
+info gdt
+gdt (base=0x00000000c0000903, limit=31):
+gdt[0x0000]=<null entry>
+gdt[0x0008]=Code segment, base=0x00000000, limit=0xffffffff, Execute-Only, Non-Conforming, Accessed, 32-bit
+gdt[0x0010]=Data segment, base=0x00000000, limit=0xffffffff, Read/Write, Accessed
+gdt[0x0018]=Data segment, base=0xc00b8000, limit=0x00007fff, Read/Write, Accessed
+You can list individual entries with 'info gdt [NUM]' or groups with 'info gdt [NUM] [NUM]'
+r
+rax: 00000000_c00007c9
+rbx: 00000000_c00007c9
+rcx: 00000000_00000067
+rdx: 00000000_c00903d5
+rsp: 00000000_c0100de4
+rbp: 00000000_c0100e40
+rsi: 00000000_00000000
+rdi: 00000000_00000000
+r8 : 00000000_00000000
+r9 : 00000000_00000000
+r10: 00000000_00000000
+r11: 00000000_00000000
+r12: 00000000_00000000
+r13: 00000000_00000000
+r14: 00000000_00000000
+r15: 00000000_00000000
+rip: 00000000_c0001f50
+eflags: 0x00000212: id vip vif ac vm rf nt IOPL=0 of df IF tf sf zf AF pf cf
+s
+Next at t=18030725
+(0) [0x000000001f53] 0008:00000000c0001f53 (unk. ctxt): jz .+2  (0xc0001f57)      ; 7402
+s
+Next at t=18030726
+(0) [0x000000001f55] 0008:00000000c0001f55 (unk. ctxt): jmp .+22  (0xc0001f6d)    ; eb16
+s
+Next at t=18030727
+(0) [0x000000001f6d] 0008:00000000c0001f6d (unk. ctxt): shl bx, 0x01              ; 66d1e3
+s
+Next at t=18030728
+(0) [0x000000001f70] 0008:00000000c0001f70 (unk. ctxt): mov byte ptr gs:[bx], cl  ; 6567880f
+s
+Next at t=18030729
+(0) [0x000000001f74] 0008:00000000c0001f74 (unk. ctxt): inc bx                    ; 6643
+s
+Next at t=18030730
+(0) [0x000000001f76] 0008:00000000c0001f76 (unk. ctxt): mov byte ptr gs:[bx], 0x07 ; 6567c60707
+s
+Next at t=18030731
+(0) [0x000000001f7b] 0008:00000000c0001f7b (unk. ctxt): shr bx, 0x01              ; 66d1eb
+s
+Next at t=18030732
+(0) [0x000000001f7e] 0008:00000000c0001f7e (unk. ctxt): inc bx                    ; 6643
+s
+Next at t=18030733
+(0) [0x000000001f80] 0008:00000000c0001f80 (unk. ctxt): cmp bx, 0x07d0            ; 6681fbd007
+s
+Next at t=18030734
+(0) [0x000000001f85] 0008:00000000c0001f85 (unk. ctxt): jl .+70  (0xc0001fcd)     ; 7c46
+s
+Next at t=18030735
+(0) [0x000000001fcd] 0008:00000000c0001fcd (unk. ctxt): mov dx, 0x03d4            ; 66bad403
+s
+Next at t=18030736
+(0) [0x000000001fd1] 0008:00000000c0001fd1 (unk. ctxt): mov al, 0x0e              ; b00e
+s
+Next at t=18030737
+(0) [0x000000001fd3] 0008:00000000c0001fd3 (unk. ctxt): out dx, al                ; ee
+s
+Next at t=18030738
+(0) [0x000000001fd4] 0008:00000000c0001fd4 (unk. ctxt): mov dx, 0x03d5            ; 66bad503
+s
+Next at t=18030739
+(0) [0x000000001fd8] 0008:00000000c0001fd8 (unk. ctxt): mov al, bh                ; 88f8
+s
+Next at t=18030740
+(0) [0x000000001fda] 0008:00000000c0001fda (unk. ctxt): out dx, al                ; ee
+s
+Next at t=18030741
+(0) [0x000000001ee3] 0008:00000000c0001ee3 (unk. ctxt): push ds                   ; 1e
+s
+Next at t=18030742
+(0) [0x000000001ee4] 0008:00000000c0001ee4 (unk. ctxt): push es                   ; 06
+s
+Next at t=18030743
+(0) [0x000000001ee5] 0008:00000000c0001ee5 (unk. ctxt): push fs                   ; 0fa0
+s
+Next at t=18030744
+(0) [0x000000001ee7] 0008:00000000c0001ee7 (unk. ctxt): push gs                   ; 0fa8
+c

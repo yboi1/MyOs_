@@ -79,7 +79,7 @@ put_char:
     inc bx
     mov byte [gs:bx], 0x07
     shr bx, 1
-    jmp .set_cursor
+    jmp set_cursor
 
 .put_other:
     shl bx, 1
@@ -90,7 +90,7 @@ put_char:
     shr bx, 1                   ; 恢复老的光标值
     inc bx
     cmp bx, 2000                ; 判断光标值是否超过屏幕字符数大小
-    jl .set_cursor
+    jl set_cursor
 
 .is_line_feed:                  ; 换行LF
 .is_carriage_return:            ; 回车CR
@@ -107,7 +107,7 @@ put_char:
     add bx, 80
     cmp bx, 2000    
 .is_line_feed_end:              ; 若是LF(\n) 将光标移动80即可
-    jl .set_cursor
+    jl set_cursor
 
 .roll_screen:                   ; 若超出屏幕大小, 开始滚屏
     cld                         ; 清除方向位 DF设为0
@@ -128,7 +128,8 @@ put_char:
     mov bx, 1920                ; 光标值重置为1920, 最后一行的首字符
 
 ;将光标设为bx值
-.set_cursor:
+global set_cursor
+set_cursor:
     ; 设置高八位
     mov dx, 0x03d4              ; 索引寄存器
     mov al, 0x0e                ; 提供光标的高八位

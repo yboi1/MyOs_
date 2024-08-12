@@ -86,9 +86,22 @@ static void general_intr_handler(uint8_t vec_nr) {
     if(vec_nr==0x27 || vec_nr==0x2f){   
         return;
     }
-    put_str("int vector : 0x");
-    put_int(vec_nr);
-    put_char('\n');
+
+    set_cursor(0);
+    int cursor_pos = 0;
+    while(cursor_pos < 320) {       // 一行字符80个 清除四行
+        put_char(' ');
+        cursor_pos++;
+    }
+    set_cursor(0);
+    put_str(intr_name[vec_nr]);
+    if(vec_nr==14) {
+        int page_fault_vaddr = 0;
+        asm ("movl %%cr2, %0" : "=r" (page_fault_vaddr));
+        put_str("\npage fault addr is ");put_int(page_fault_vaddr);
+    }
+    put_str("\n!!!!!!       excepriton message end      !!!!!\n");
+    while(1);    
 }
 
 // 完成一般中断处理函数注册及异常名称注册
@@ -159,6 +172,10 @@ enum intr_status intr_get_status() {
     return (EFLAGS_IF & eflags) ? INTR_ON : INTR_OFF;
 }
 
+// 注册安装中断处理函数
+void register_handler(uint8_t vector_no, intr_handler function) {
+    idt_table[vector_no] = function;
+}
 
 /* 完成有关中断的所有初始化工作 */
 void idt_init(){

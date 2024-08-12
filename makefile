@@ -3,7 +3,7 @@ ENTRY_POINT = 0xc0001500
 AS = nasm
 CC = x86_64-elf-gcc
 LD = x86_64-elf-ld
-LIB = -I lib/ -I kernel/ -I lib/kernel -I lib/user -I device/
+LIB = -I lib/ -I kernel/ -I lib/kernel -I lib/user -I device/ -I thread/
 ASFLAGS = -f elf
 ASIB = -I include/
 CFLAGS =  -Wall -m32 $(LIB) -c -fno-builtin #-Wstrict-prototypes -Wmissing-prototypes
@@ -11,11 +11,12 @@ LDFLAGS = -m elf_i386 -Ttext $(ENTRY_POINT) -e main #-Map $(BUILD_DIR)/kernel.ma
 OBJS =  $(BUILD_DIR)/main.o $(BUILD_DIR)/init.o $(BUILD_DIR)/interrupt.o \
 		$(BUILD_DIR)/timer.o $(BUILD_DIR)/kernel.o $(BUILD_DIR)/print.o \
 		$(BUILD_DIR)/debug.o $(BUILD_DIR)/string.o $(BUILD_DIR)/bitmap.o \
-		$(BUILD_DIR)/memory.o
+		$(BUILD_DIR)/memory.o $(BUILD_DIR)/thread.o $(BUILD_DIR)/list.o \
+		$(BUILD_DIR)/switch.o
 
 all: build hd run 
 
-$(BUILD_DIR)/main.o: kernel/main.c lib/kernel/print.h lib/stdint.h kernel/init.h
+$(BUILD_DIR)/main.o: kernel/main.c lib/kernel/print.h lib/stdint.h kernel/init.h thread/thread.h
 	$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/init.o: kernel/init.c kernel/init.h kernel/memory.h lib/kernel/print.h lib/stdint.h kernel/interrupt.h device/timer.h 
@@ -36,7 +37,13 @@ $(BUILD_DIR)/string.o: lib/string.c lib/string.h kernel/global.h kernel/debug.h
 $(BUILD_DIR)/bitmap.o: lib/bitmap.c lib/bitmap.h kernel/debug.h kernel/interrupt.h lib/stdint.h
 	$(CC) $(CFLAGS) $< -o $@
 
+$(BUILD_DIR)/list.o:   lib/kernel/list.c lib/kernel/list.h kernel/interrupt.h kernel/global.h
+	$(CC) $(CFLAGS) $< -o $@
+
 $(BUILD_DIR)/memory.o: kernel/memory.c kernel/memory.h lib/bitmap.h lib/stdint.h lib/kernel/print.h kernel/debug.h lib/string.h
+	$(CC) $(CFLAGS) $< -o $@
+
+$(BUILD_DIR)/thread.o: thread/thread.c thread/thread.h lib/stdint.h lib/string.c kernel/global.h kernel/memory.h kernel/debug.h kernel/interrupt.h lib/kernel/print.h lib/kernel/list.h
 	$(CC) $(CFLAGS) $< -o $@
 
 # 编译loader mbr
@@ -51,6 +58,9 @@ $(BUILD_DIR)/kernel.o : kernel/kernel.S
 	$(AS) $(ASFLAGS) $< -o  $@
 $(BUILD_DIR)/print.o : lib/kernel/print.S
 	$(AS) $(ASFLAGS) $< -o $@
+$(BUILD_DIR)/switch.o : thread/switch.S
+	$(AS) $(ASFLAGS) $< -o $@
+
 
 # 链接所有目标文件
 $(BUILD_DIR)/kernel.bin: $(OBJS)
