@@ -63,7 +63,7 @@ void init_thread(struct task_struct* pthread, char* name, int prio) {
     //
     pthread->self_kstack = (uint32_t*)((uint32_t)pthread + PG_SIZE);
     pthread->pgdir = NULL;
-    pthread->stack_magic = 0x19870916;
+    pthread->stack_magic = 0x20040207;
 }
 
 struct task_struct* thread_start(char* name, int prio, thread_func function, void* func_arg) {
@@ -119,4 +119,28 @@ void thread_init(void) {
     list_init(&thread_ready_list);
     make_main_thread();
     put_str("thread_init done\n");
+}
+
+void thread_block(enum task_status stat) {
+    /* 当状态为 BLOCKED, WAITING, HANGDING 时不会被调度*/
+    ASSERT(((stat==TASK_WAITING) || (stat==TASK_BLOCKED) || (stat==TASK_HANGING)));
+    enum intr_status old_status = intr_disable();
+    struct task_struct* cur_thread = running_thread();
+    cur_thread->status = stat;
+    schedule();
+    intr_set_status(old_status);
+}
+
+void thread_unblock(struct task_struct* pthread) {
+    enum intr_status old_status = intr_disable();
+    ASSERT((pthread->status==TASK_BLOCKED)||(pthread->status==TASK_HANGING)||(pthread->status==TASK_WAITING));
+    if(pthread->status!=TASK_READY) {
+        ASSERT(!elem_find(&thread_ready_list, &pthread->general_tag));
+        if(elem_find(&thread_ready_list, &pthread->general_tag)) {
+            PANIC("thread_unblock : blocked thread in ready_list!\n");
+        }
+        list_push(&thread_ready_list, &pthread->general_tag);
+        pthread->status = TASK_READY;
+    }
+    intr_set_status(old_status);
 }

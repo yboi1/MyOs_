@@ -72,9 +72,6 @@ uint32_t* pde_ptr(uint32_t vaddr) {
 /*  在m_pool指向的物理内存池中分配一个物理页    成功返回页框的物理地址, 失败返回NULL*/
 static void* palloc(struct pool* m_pool) {
     int bit_idx = bitmap_scan(&m_pool->pool_bitmap, 1); // 找一个物理界面
-    put_str("\n");
-    put_int(bit_idx);
-    put_str("\n");
     if (bit_idx == -1) {
         return NULL;
     }
@@ -187,7 +184,7 @@ static void mem_pool_init(uint32_t all_mem) {
 
     /* 输出内存池信息 */
     
-    put_str("\n   kernel_pool_bitmap_start:");
+    put_str("   kernel_pool_bitmap_start:");
     put_int((int)kernel_pool.pool_bitmap.bits); // 地址转换为int
     put_str("   kernel_pool_phy_addr_start:");
     put_int(kernel_pool.phy_addr_start);
@@ -211,11 +208,9 @@ static void mem_pool_init(uint32_t all_mem) {
 }
 
 void mem_init() {
-    put_str("\n\n*****************************\n");
     put_str("mem_init start\n");
     uint32_t mem_bytes_total = (*(uint32_t*)(0xb00));
     mem_pool_init(mem_bytes_total);
     put_str("mem_init done\n");
-    put_str("*****************************\n");
 }
 

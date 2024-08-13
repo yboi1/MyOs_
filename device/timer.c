@@ -31,7 +31,7 @@ static void frequency_set(uint8_t counter_port,
 
 static void intr_timer_handler(void) {      // 时钟异常处理
     struct task_struct* cur_thread = running_thread();
-    ASSERT(cur_thread->stack_magic == 0x19870916);
+    ASSERT(cur_thread->stack_magic == 0x20040207);
 
     cur_thread->elapsed_ticks++;
     ticks++;

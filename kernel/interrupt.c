@@ -5,11 +5,11 @@
 #include "print.h"
 
 
-#define IDT_DESC_CNT 0x21           // 目前支持的中断数
-# define PIC_M_CTRL 0x20            // 主片的控制端口0x20
-# define PIC_M_DATA 0x21            // 主片的数据端口0x21
-# define PIC_S_CTRL 0xa0            // 从片的控制端口0xa0
-# define PIC_S_DATA 0xa1            // 从片的数据端口0xa1
+#define IDT_DESC_CNT 0x30           // 目前支持的中断数
+#define PIC_M_CTRL 0x20            // 主片的控制端口0x20
+#define PIC_M_DATA 0x21            // 主片的数据端口0x21
+#define PIC_S_CTRL 0xa0            // 从片的控制端口0xa0
+#define PIC_S_DATA 0xa1            // 从片的数据端口0xa1
 
 #define EFLAGS_IF 0x00000200        // IF 位于eflasg的第9位
 #define GET_EFLAGS(EFLAG_VAR) asm volatile("pushfl; popl %0" : "=g"(EFLAG_VAR))
@@ -53,8 +53,14 @@ static void pic_init(void){
     outb (PIC_S_DATA, 0x02);    // ICW3: 设置从片连接到主片的IR2引脚
     outb (PIC_S_DATA, 0x01);    // ICW4: 8086模式, 正常EOI
 
-    // 打开主片上IRO, 目前只接受时钟产生的中断
-    outb (PIC_M_DATA, 0xfe);    
+    // 接受时钟产生的中断
+    // outb (PIC_M_DATA, 0xfe);   
+
+    // 打开键盘中断
+    // outb (PIC_M_DATA, 0xfd);
+
+    // 打开键盘和时钟中断
+    outb (PIC_M_DATA, 0xfc);
     outb (PIC_S_DATA, 0xff);
 
     put_str( "      pic_init done\n");
@@ -86,14 +92,16 @@ static void general_intr_handler(uint8_t vec_nr) {
     if(vec_nr==0x27 || vec_nr==0x2f){   
         return;
     }
+    put_str("\n");
+    put_int(vec_nr);
 
-    set_cursor(0);
+    //set_cursor(0);
     int cursor_pos = 0;
     while(cursor_pos < 320) {       // 一行字符80个 清除四行
         put_char(' ');
         cursor_pos++;
     }
-    set_cursor(0);
+    //set_cursor(0);
     put_str(intr_name[vec_nr]);
     if(vec_nr==14) {
         int page_fault_vaddr = 0;
@@ -141,29 +149,29 @@ enum intr_status intr_enable(){
         old_status = INTR_ON;
         return old_status;
     }
-    else {
-        old_status = INTR_OFF;
-        asm volatile("sti");
-        return old_status;
-    }
+    
+    old_status = INTR_OFF;
+    asm volatile("sti");
+    return old_status;
 }
 
 // 关中断并返回之前的状态
 enum intr_status intr_disable() {
     enum intr_status old_status;
-    if(INTR_ON == intr_get_status()){
-        old_status = INTR_ON;
-        asm volatile ("cli" : : : "memory" );
-        return old_status;
-    } else {
+    if(INTR_OFF == intr_get_status()){
         old_status = INTR_OFF;
         return old_status;
-    }
+    } 
+
+    old_status = INTR_ON;
+    asm volatile ("cli" : : : "memory" );
+    return old_status;
+
 }
 
 // 将中断状态设置为status
 enum intr_status intr_set_status(enum intr_status status) {
-    return status & INTR_ON ? intr_enable() : intr_disable();
+    return (status == INTR_ON) ? intr_enable() : intr_disable();
 }
 
 enum intr_status intr_get_status() {
@@ -179,7 +187,6 @@ void register_handler(uint8_t vector_no, intr_handler function) {
 
 /* 完成有关中断的所有初始化工作 */
 void idt_init(){
-    put_str("\n\n*****************************\n");
     put_str("idt_init start\n");
     idt_desc_init();
     exception_init();
@@ -189,5 +196,4 @@ void idt_init(){
     uint64_t idt_operand = ((sizeof(idt) - 1) | ((uint64_t) ((uint32_t) idt << 16)));
     asm volatile ("lidt %0" : : "m" (idt_operand));
     put_str("idt_init done.\n");
-    put_str("*****************************\n");
 }

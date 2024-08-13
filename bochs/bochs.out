@@ -39,40 +39,40 @@
 00000000000i[USBCTL] Pluggable USB devices
 00000000000i[USBCTL]   disk cdrom mouse tablet keypad keyboard hub floppy
 00000000000i[USBCTL]   printer
-00000000000i[MEM0  ] allocated memory at 0x112b04000. after alignment, vector=0x112b04000, block_size = 128K
+00000000000i[MEM0  ] allocated memory at 0x300000000. after alignment, vector=0x300000000, block_size = 128K
 00000000000i[MEM0  ] 512.00MB
 00000000000i[MEM0  ] mem block size = 0x00020000, blocks=4096
 00000000000i[MEM0  ] rom at 0xfffe0000/131072 ('/opt/homebrew/Cellar/bochs/2.8/share/bochs/BIOS-bochs-latest')
 00000000000i[DEV   ] will paste characters every 100 iodev timer ticks
-00000000000i[      ] lt_dlhandle is 0x133285540
+00000000000i[      ] lt_dlhandle is 0x114e75750
 00000000000i[PLUGIN] loaded plugin libbx_pci.so
-00000000000i[      ] lt_dlhandle is 0x133285990
+00000000000i[      ] lt_dlhandle is 0x114e75be0
 00000000000i[PLUGIN] loaded plugin libbx_pci2isa.so
-00000000000i[      ] lt_dlhandle is 0x133285a30
+00000000000i[      ] lt_dlhandle is 0x114e75c40
 00000000000i[PLUGIN] loaded plugin libbx_usb_uhci.so
-00000000000i[      ] lt_dlhandle is 0x133287f40
+00000000000i[      ] lt_dlhandle is 0x114e78170
 00000000000i[PLUGIN] loaded plugin libbx_acpi.so
-00000000000i[      ] lt_dlhandle is 0x133288000
+00000000000i[      ] lt_dlhandle is 0x114e78230
 00000000000i[PLUGIN] loaded plugin libbx_hpet.so
-00000000000i[      ] lt_dlhandle is 0x1332884a0
+00000000000i[      ] lt_dlhandle is 0x114e786d0
 00000000000i[PLUGIN] loaded plugin libbx_cmos.so
-00000000000i[      ] lt_dlhandle is 0x133288670
+00000000000i[      ] lt_dlhandle is 0x114e788a0
 00000000000i[PLUGIN] loaded plugin libbx_dma.so
-00000000000i[      ] lt_dlhandle is 0x1332889a0
+00000000000i[      ] lt_dlhandle is 0x114e78bd0
 00000000000i[PLUGIN] loaded plugin libbx_pic.so
-00000000000i[      ] lt_dlhandle is 0x133288e50
+00000000000i[      ] lt_dlhandle is 0x114e79080
 00000000000i[PLUGIN] loaded plugin libbx_pit.so
-00000000000i[      ] lt_dlhandle is 0x1332891d0
+00000000000i[      ] lt_dlhandle is 0x114e79400
 00000000000i[PLUGIN] loaded plugin libbx_vga.so
-00000000000i[      ] lt_dlhandle is 0x1332893c0
+00000000000i[      ] lt_dlhandle is 0x114e795f0
 00000000000i[PLUGIN] loaded plugin libbx_floppy.so
-00000000000i[      ] lt_dlhandle is 0x133289450
+00000000000i[      ] lt_dlhandle is 0x114e79680
 00000000000i[PLUGIN] loaded plugin libbx_ioapic.so
-00000000000i[      ] lt_dlhandle is 0x1332898d0
+00000000000i[      ] lt_dlhandle is 0x114e79b00
 00000000000i[PLUGIN] loaded plugin libbx_keyboard.so
-00000000000i[      ] lt_dlhandle is 0x133289930
+00000000000i[      ] lt_dlhandle is 0x114e79b60
 00000000000i[PLUGIN] loaded plugin libbx_harddrv.so
-00000000000i[      ] lt_dlhandle is 0x133289db0
+00000000000i[      ] lt_dlhandle is 0x114e79fe0
 00000000000i[PLUGIN] loaded plugin libbx_pci_ide.so
 00000000000i[PLUGIN] init_dev of 'pci' plugin device by virtual method
 00000000000i[DEV   ] i440FX PMC present at device 0, function 0
@@ -80,7 +80,7 @@
 00000000000i[DEV   ] PIIX3 PCI-to-ISA bridge present at device 1, function 0
 00000000000i[PLUGIN] init_dev of 'cmos' plugin device by virtual method
 00000000000i[CMOS  ] Using local time for initial clock
-00000000000i[CMOS  ] Setting initial clock to: Mon Aug 12 14:29:39   2024 tz=utc (time0=1723472979)
+00000000000i[CMOS  ] Setting initial clock to: Tue Aug 13 14:49:16   2024 tz=utc (time0=1723560556)
 00000000000i[PLUGIN] init_dev of 'dma' plugin device by virtual method
 00000000000i[DMA   ] channel 4 used by cascade
 00000000000i[PLUGIN] init_dev of 'pic' plugin device by virtual method
@@ -266,12 +266,26 @@
 00005146875i[BIOS  ] IDE time out
 00017175513i[BIOS  ] Booting from 0000:7c00
 00017185665i[BIOS  ] *** int 15h function AX=e820, BX=0000 not yet supported!
-00017422894p[PIC   ] >>PANIC<< write to port 0x20 = 0x01
-00017422979p[PIC   ] >>PANIC<< master: not 80x86 mode
-00018030724i[CPU0  ] [18030724] Caught time breakpoint
-00021133563e[CPU0  ] write_virtual_checks(): write beyond limit, r/w
-00021269545e[CPU0  ] fetch_raw_descriptor: GDT: index (f007) 1e00 > limit (1f)
-00021335865e[CPU0  ] fetch_raw_descriptor: GDT: index (f007) 1e00 > limit (1f)
-00021368986e[CPU0  ] fetch_raw_descriptor: GDT: index (f007) 1e00 > limit (1f)
-00021465605p[CPU0  ] >>PANIC<< prefetch: getHostMemAddr vetoed direct read, pAddr=0x0000000ab80e
-00021465605i[      ] Ctrl-C detected in signal handler.
+00017425942p[PIC   ] >>PANIC<< write to port 0x20 = 0x01
+00017426027p[PIC   ] >>PANIC<< master: not 80x86 mode
+53111494990i[      ] Ctrl-C detected in signal handler.
+53111494991i[      ] dbg: Quit
+53111494991i[CPU0  ] CPU is in protected mode (active)
+53111494991i[CPU0  ] CS.mode = 32 bit
+53111494991i[CPU0  ] SS.mode = 32 bit
+53111494991i[CPU0  ] EFER   = 0x00000000
+53111494991i[CPU0  ] | EAX=00000000  EBX=00070074  ECX=c0101014  EDX=c010102c
+53111494991i[CPU0  ] | ESP=c009eff0  EBP=c009eff8  ESI=00073bd6  EDI=c0005bd6
+53111494991i[CPU0  ] | IOPL=0 id vip vif ac vm rf nt of df IF tf SF zf AF PF CF
+53111494991i[CPU0  ] | SEG sltr(index|ti|rpl)     base    limit G D
+53111494991i[CPU0  ] |  CS:0008( 0001| 0|  0) 00000000 ffffffff 1 1
+53111494991i[CPU0  ] |  DS:0010( 0002| 0|  0) 00000000 ffffffff 1 1
+53111494991i[CPU0  ] |  SS:0010( 0002| 0|  0) 00000000 ffffffff 1 1
+53111494991i[CPU0  ] |  ES:0010( 0002| 0|  0) 00000000 ffffffff 1 1
+53111494991i[CPU0  ] |  FS:0000( 0000| 0|  0) 00000000 00000000 0 0
+53111494991i[CPU0  ] |  GS:0018( 0003| 0|  0) c00b8000 00007fff 1 1
+53111494991i[CPU0  ] | EIP=c000155d (c000155d)
+53111494991i[CPU0  ] | CR0=0xe0000011 CR2=0x00000000
+53111494991i[CPU0  ] | CR3=0x00100000 CR4=0x00000000
+53111494991i[CMOS  ] Last time: 1723573833 tz=utc (Tue Aug 13 18:30:33   2024)
+53111494991i[SIM   ] quit_sim called with exit code 0
