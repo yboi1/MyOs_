@@ -1,10 +1,12 @@
 {
     "clangd.fallbackFlags": [
-        "-I/Users/boyi/Code/diy_os/Os_book/lib/kernel",
-        "-I/Users/boyi/Code/diy_os/Os_book/kernel",
-        "-I/Users/boyi/Code/diy_os/Os_book/device",
-        "-I/Users/boyi/Code/diy_os/Os_book/lib",
-        "-I/Users/boyi/Code/diy_os/Os_book/lib/user",
-        "-I/Users/boyi/Code/diy_os/Os_book/thread"
+        "-I/Users/boyi/Code/Os_boyi/kernel",
+        "-I/Users/boyi/Code/Os_boyi/device",
+        "-I/Users/boyi/Code/Os_boyi/lib",
+        "-I/Users/boyi/Code/Os_boyi/lib/user",
+        "-I/Users/boyi/Code/Os_boyi/kernel",
+        "-I/Users/boyi/Code/Os_boyi/lib/kernel",
+        "-I/Users/boyi/Code/Os_boyi/thread",
+        "-I/Users/boyi/Code/Os_boyi/userprog"
     ]
 }

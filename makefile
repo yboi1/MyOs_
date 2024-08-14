@@ -3,7 +3,7 @@ ENTRY_POINT = 0xc0001500
 AS = nasm
 CC = x86_64-elf-gcc
 LD = x86_64-elf-ld
-LIB = -I lib/ -I kernel/ -I lib/kernel -I lib/user -I device/ -I thread/
+LIB = -I lib/ -I kernel/ -I lib/kernel -I lib/user -I device/ -I thread/ -I userprog
 ASFLAGS = -f elf
 ASIB = -I include/
 CFLAGS =  -Wall -m32 $(LIB) -c -fno-builtin #-Wstrict-prototypes -Wmissing-prototypes
@@ -13,7 +13,7 @@ OBJS =  $(BUILD_DIR)/main.o $(BUILD_DIR)/init.o $(BUILD_DIR)/interrupt.o \
 		$(BUILD_DIR)/debug.o $(BUILD_DIR)/string.o $(BUILD_DIR)/bitmap.o \
 		$(BUILD_DIR)/memory.o $(BUILD_DIR)/thread.o $(BUILD_DIR)/list.o \
 		$(BUILD_DIR)/switch.o $(BUILD_DIR)/console.o $(BUILD_DIR)/sync.o \
-		$(BUILD_DIR)/keyboard.o $(BUILD_DIR)/ioqueue.o
+		$(BUILD_DIR)/keyboard.o $(BUILD_DIR)/ioqueue.o $(BUILD_DIR)/tss.o
 
 all: build hd run 
 
@@ -57,6 +57,9 @@ $(BUILD_DIR)/memory.o: kernel/memory.c kernel/memory.h lib/bitmap.h lib/stdint.h
 	$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/thread.o: thread/thread.c thread/thread.h lib/stdint.h lib/string.c kernel/global.h kernel/memory.h kernel/debug.h kernel/interrupt.h lib/kernel/print.h lib/kernel/list.h
+	$(CC) $(CFLAGS) $< -o $@
+
+$(BUILD_DIR)/tss.o:	userprog/tss.c userprog/tss.h kernel/global.h thread/thread.h lib/kernel/print.h lib/string.h
 	$(CC) $(CFLAGS) $< -o $@
 
 # 编译loader mbr

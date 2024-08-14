@@ -1,6 +1,7 @@
 #ifndef __THREAD_THREAD_H
 #define __THREAD_THREAD_H
 #include "list.h"
+#include "memory.h"
 #include "stdint.h"
 
 /* 自定义通用函数类型 */
@@ -76,8 +77,11 @@ struct task_struct {
     uint32_t ticks;             // 每次在处理器上执行时间的滴答数
     uint32_t elapsed_ticks;     // 执行了多少个滴答数, 即执行了多久
     struct list_elem general_tag;  // 用于线程在一般的队列中的结点
-    struct list_elem all_list_tag;
+    struct list_elem all_list_tag; // 用于线程队列中的节点
+
     uint32_t* pgdir;            // 进程自己页表的虚拟地址
+    struct virtual_addr userprog_vaddr; // 用户进程的虚拟地址
+
     uint32_t stack_magic;       // 栈的边界标记, 用于检测栈的溢出
 };
 
