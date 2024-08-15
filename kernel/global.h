@@ -2,7 +2,6 @@
 #define __KERNEL_GLOBAL_H
 #include "stdint.h"
 
-#define NULL 0
 
 #define PG_SIZE 4096
 
@@ -80,5 +79,22 @@ struct gdt_desc
     uint8_t  limit_high_attr_high;
     uint8_t  base_high_byte;
 };
+
+// 进入用户进程
+#define EFLAGS_MBS      (1 << 1)
+#define EFLAGS_IF_1     (1 << 9)
+#define EFLAGS_IF_0     0
+#define EFLAGS_IOPL_3   (3 << 12)
+
+#define EFLAGS_IOPL_0   (0 << 12)
+
+#define default_prio 31
+#define NULL ((void*)0)
+// 记录位图需要的内存页框数
+#define DIV_ROUND_UP(X, STEP) ((X + STEP - 1) / (STEP)) 
+#define bool int 
+#define false 0
+#define true 1
+
 
 #endif

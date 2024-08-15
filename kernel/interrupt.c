@@ -92,8 +92,6 @@ static void general_intr_handler(uint8_t vec_nr) {
     if(vec_nr==0x27 || vec_nr==0x2f){   
         return;
     }
-    put_str("\n");
-    put_int(vec_nr);
 
     //set_cursor(0);
     int cursor_pos = 0;
@@ -108,7 +106,6 @@ static void general_intr_handler(uint8_t vec_nr) {
         asm ("movl %%cr2, %0" : "=r" (page_fault_vaddr));
         put_str("\npage fault addr is ");put_int(page_fault_vaddr);
     }
-    put_str("\n!!!!!!       excepriton message end      !!!!!\n");
     while(1);    
 }
 

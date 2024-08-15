@@ -3,6 +3,7 @@ Switching to CPU0
 Next at t=0
 (0) [0x0000fffffff0] f000:fff0 (unk. ctxt): jmpf 0xf000:e05b          ; ea5be000f0
 c
-Next at t=783882000
-(0) [0x00000000157b] 0008:00000000c000157b (unk. ctxt): add esp, 0x00000010       ; 83c410
+(0).[21772379] [0x000000001973] 0008:00000000c0001973 (unk. ctxt): leave                     ; c9
+Next at t=21772380
+(0) [0x0000fffffff0] f000:fff0 (unk. ctxt): jmpf 0xf000:e05b          ; ea5be000f0
 quit

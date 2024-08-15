@@ -7,6 +7,7 @@
 #include "global.h"
 #include "memory.h"
 #include "debug.h"
+#include "process.h"
 
 #define PG_SIZE 4096
 
@@ -106,10 +107,12 @@ void schedule() {
     }
 
     ASSERT(!list_empty(&thread_ready_list));
-    thread_tag = NULL;
+
     thread_tag = list_pop(&thread_ready_list);
     struct task_struct* next = elem2enyrt(struct task_struct, general_tag, thread_tag);
     next->status = TASK_RUNNING;
+
+    process_activate(next);
     switch_to(cur, next);
 }
 

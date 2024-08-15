@@ -1,6 +1,8 @@
 #include "list.h"
 #include "interrupt.h"
+#include "print.h"
 #include "stdint.h"
+#include "console.h"
 
 void list_init(struct list * list) {
     list->head.prev = NULL;
@@ -13,13 +15,13 @@ void list_init(struct list * list) {
 void list_insert_before(struct list_elem* before, struct list_elem* elem) {
     enum intr_status old_status = intr_disable();
 
-    before->prev->next = elem;
-
     elem->prev = before->prev;
     elem->next = before;
 
+    before->prev->next = elem;
     before->prev = elem;
     intr_set_status(old_status);
+    
 }
 
 void list_push(struct list *plist, struct list_elem *elem) {

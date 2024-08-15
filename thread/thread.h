@@ -85,6 +85,9 @@ struct task_struct {
     uint32_t stack_magic;       // 栈的边界标记, 用于检测栈的溢出
 };
 
+extern struct list thread_ready_list;          // 就绪队列
+extern  struct list thread_all_list;            // 所有任务队列
+
 //static void kernel_thread(thread_func*, void*);
 void thread_create(struct task_struct*, thread_func, void*); 
 void init_thread(struct task_struct*, char*, int);

@@ -4,7 +4,7 @@
 #include "thread.h"
 #include "sync.h" 
 
-#define bufsize 64
+#define bufsize 1024
 
 struct ioqueue {
     struct lock lock;
