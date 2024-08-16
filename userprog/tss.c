@@ -81,4 +81,3 @@ void tss_init()
     asm volatile("ltr %w0" : : "r"(SELECTOR_TSS));
     put_str("tss_init and ltr done\n");
 }
-

@@ -18,9 +18,10 @@ void memcpy(void* dst_, const void* src_, uint32_t size) {
     ASSERT(dst_ != NULL && src_ != NULL);
     uint8_t* dst = dst_;
     const uint8_t* src = src_;
-    while( size-- > 0) {
-        *dst++ = *src++;
+    while( (size--) > 0) {
+        *(dst++) = *(src++);
     }
+    return;
 }
 
 // 内存比较函数 大于:1 小于:2 等于:0

@@ -8,6 +8,7 @@
 #include "interrupt.h"
 #include "string.h"
 #include "console.h"
+#include "print.h"
 
 extern void intr_exit(void);
 
@@ -15,7 +16,7 @@ extern void intr_exit(void);
 void start_process(void* filename_) {
 	void* function = filename_;
 	struct task_struct* cur = running_thread();
-	cur->self_kstack += sizeof(struct thread_stack) / sizeof(*cur->self_kstack);
+	cur->self_kstack += sizeof(struct thread_stack);
 	// 中断栈初始化
 	struct intr_stack* proc_stack = (struct intr_stack*)cur->self_kstack;
 	proc_stack->edi = 0;
@@ -79,7 +80,6 @@ uint32_t* create_page_dir(void) {
 
 	// 1. 先复制pde，0xfffff000 + 0x300 * 4是内核页目录表的第768项
 	memcpy((uint32_t*)((uint32_t)page_dir_vaddr + 0x300 * 4), (uint32_t*)(0xfffff000 + 0x300 * 4), 1024);
-
 	// 2. 更新页目录地址
 	uint32_t new_page_dir_phy_addr = addr_v2p((uint32_t)page_dir_vaddr);
 	// 页目录地址是存入页目录表的最后一项，更新页目录地址为新页目录表的物理地址
@@ -111,6 +111,7 @@ void process_execute(void* filename, char* name) {
 	thread_create(thread, start_process, filename);
 	// 创建用户进程使用的页目录表
 	thread->pgdir = create_page_dir();
+	
 
 	enum intr_status old_status = intr_disable();
 	ASSERT(!elem_find(&thread_ready_list, &thread->general_tag));
@@ -118,5 +119,7 @@ void process_execute(void* filename, char* name) {
 
 	ASSERT(!elem_find(&thread_all_list, &thread->all_list_tag));
 	list_append(&thread_all_list, &thread->all_list_tag);
+
+	
 	intr_set_status(old_status);
 }

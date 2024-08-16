@@ -63,7 +63,7 @@ $(BUILD_DIR)/thread.o: thread/thread.c thread/thread.h lib/stdint.h lib/string.c
 $(BUILD_DIR)/tss.o:	userprog/tss.c userprog/tss.h kernel/global.h thread/thread.h lib/kernel/print.h lib/string.h
 	$(CC) $(CFLAGS) $< -o $@
 
-$(BUILD_DIR)/process.o:	userprog/process.c userprog/process.h kernel/global.h  lib/stdint.h lib/string.c kernel/global.h kernel/memory.h kernel/debug.h kernel/interrupt.h lib/kernel/print.h lib/kernel/list.h
+$(BUILD_DIR)/process.o:	userprog/process.c userprog/process.h kernel/global.h  lib/stdint.h lib/string.c kernel/global.h kernel/memory.h kernel/debug.h kernel/interrupt.h lib/kernel/print.h lib/kernel/list.h userprog/tss.h
 	$(CC) $(CFLAGS) $< -o $@
 
 # 编译loader mbr

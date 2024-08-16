@@ -11,9 +11,9 @@ switch_to:
     mov eax, [esp+20]   ; 得到栈中的参数cur cur=[esp+20]
     mov [eax], esp
 
-
     mov eax, [esp+24]   ; 得到参数next  实现环境的切换
     mov esp, [eax]
+    
     pop ebp
     pop ebx
     pop edi
