@@ -1,5 +1,6 @@
 #include "ioqueue.h"
 #include "keyboard.h"
+#include "list.h"
 #include "memory.h"
 #include "print.h"
 #include "init.h"
@@ -20,14 +21,16 @@ int main(void) {
     put_str("hello kernel...\n");
     init_all();
 
-    thread_start("consumer_a", 31, k_thread_a, "  A_");
+    thread_start("consumer_a", 8, k_thread_a, "  A_");
     thread_start("consumer_b", 31, k_thread_b, "  B_");
+    // thread_start("consumer_b", 31, k_thread_b, "  B_");
 
 
     process_execute(u_prog_a, "user_prog_a");
     process_execute(u_prog_b, "user_prog_b");
-    
+
     intr_enable();
+
     while(1);
 
     return 0;
@@ -56,12 +59,14 @@ void k_thread_b(void* arg) {
 
 
 void u_prog_a(void){
+    put_str("start _prog_a...\n");
     while(1){
         test_var_a++;
     }
 }
 
 void u_prog_b(void){
+    put_str("start _prog_b...\n");
     while(1){
         test_var_b++;
     }

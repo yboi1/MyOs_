@@ -3,25 +3,7 @@ Switching to CPU0
 Next at t=0
 (0) [0x0000fffffff0] f000:fff0 (unk. ctxt): jmpf 0xf000:e05b          ; ea5be000f0
 c
-Next at t=183712177
-(0) [0x0000000021c4] 0008:00000000c00021c4 (unk. ctxt): mov ebx, 0x00000f00       ; bb000f0000
-info tab
-cr3: 0x000000100000
-0x0000000000000000-0x00000000000fffff -> 0x000000000000-0x0000000fffff
-0x0000000000100000-0x0000000000103fff -> 0x000000200000-0x000000203fff
-0x00000000c0000000-0x00000000c00fffff -> 0x000000000000-0x0000000fffff
-0x00000000c0100000-0x00000000c0103fff -> 0x000000200000-0x000000203fff
-0x00000000ffc00000-0x00000000ffc00fff -> 0x000000101000-0x000000101fff
-0x00000000fff00000-0x00000000ffffefff -> 0x000000101000-0x0000001fffff
-0x00000000fffff000-0x00000000ffffffff -> 0x000000100000-0x000000100fff
-info gdt
-gdt (base=0x00000000c0000903, limit=55):
-gdt[0x0000]=<null entry>
-gdt[0x0008]=Code segment, base=0x00000000, limit=0xffffffff, Execute-Only, Non-Conforming, Accessed, 32-bit
-gdt[0x0010]=Data segment, base=0x00000000, limit=0xffffffff, Read/Write, Accessed
-gdt[0x0018]=Data segment, base=0xc00b8000, limit=0x00007fff, Read/Write, Accessed
-gdt[0x0020]=32-Bit TSS (Busy) at 0xc0006d20, length 0x0006b
-gdt[0x0028]=Code segment, base=0x00000000, limit=0xffffffff, Execute-Only, Non-Conforming, 32-bit
-gdt[0x0030]=Data segment, base=0x00000000, limit=0xffffffff, Read/Write
-You can list individual entries with 'info gdt [NUM]' or groups with 'info gdt [NUM] [NUM]'
+(0).[21641569] [0x0000000019c4] 0008:00000000c00019c4 (unk. ctxt): leave                     ; c9
+Next at t=21641570
+(0) [0x0000fffffff0] f000:fff0 (unk. ctxt): jmpf 0xf000:e05b          ; ea5be000f0
 quit

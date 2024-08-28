@@ -45,7 +45,7 @@ loader_start:
 ; int 15th eax = 0000E820h, edx = 534D4150h ('SMAP') 字符串ascii值， 获取内存布局 具体注释看书p181
 
     xor ebx, ebx            ; ebx 置为0
-    mov edx, 0x534Dd4150    ; edx 只赋值一次， 后续不会变
+    mov edx, 0x534d4150    ; edx 只赋值一次， 后续不会变
     mov di, ards_buf        ; ards结构体缓冲区
 .e820_mem_get_loop:         ; 循环获取ards结构体
     mov eax, 0x0000e820     ; 

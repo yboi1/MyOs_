@@ -8,6 +8,7 @@
 #include "memory.h"
 #include "debug.h"
 #include "process.h"
+#include "sync.h"
 
 #define PG_SIZE 4096
 
@@ -15,6 +16,7 @@ struct task_struct* main_thread;        // 主线程pcb
 struct list thread_ready_list;          // 就绪队列
 struct list thread_all_list;            // 所有任务队列
 static struct list_elem* thread_tag;    // 保存队列中的线程节点 ?????
+struct lock pid_lock;
 
 extern void switch_to(struct task_struct* cur, struct task_struct* next);
 
@@ -25,11 +27,24 @@ struct task_struct* running_thread() {
     return (struct task_struct*)(esp & 0xfffff000);
 }
 
+void thread_funca(){
+
+}
 /* 由kernel_thread 去执行function(func_arg) */
 static void kernel_thread(thread_func* function, void* func_arg){
     // 避免后面的时钟中断被屏蔽, 而无法调度其他线程
     intr_enable();
+    struct task_struct* thread = running_thread();
     function(func_arg);
+}
+
+/* 分配pid */
+static pid_t allocate_pid(void) {
+    static pid_t next_pid = 0;
+    lock_acquire(&pid_lock);
+    next_pid++;
+    lock_release(&pid_lock);
+    return next_pid;
 }
 
 /* 初始化线程栈thread_stack
@@ -50,6 +65,7 @@ void thread_create(struct task_struct* pthread, thread_func function, void* func
 // 初始化线程的基本信息
 void init_thread(struct task_struct* pthread, char* name, int prio) {
     memset(pthread, 0, sizeof(*pthread));
+    pthread->pid = allocate_pid();
     strcpy(pthread->name, name);
 
     if(pthread == main_thread) {
@@ -79,6 +95,7 @@ struct task_struct* thread_start(char* name, int prio, thread_func function, voi
     ASSERT(!elem_find(&thread_all_list, &thread->all_list_tag));
     list_append(&thread_all_list, &thread->all_list_tag);
 
+
     // asm volatile ("movl %0, %%esp; pop %%ebp; pop %%ebx; pop %%edi; pop %% esi; ret" 
     // : : "g"(thread->self_kstack) : "memory");
     return thread;
@@ -92,6 +109,9 @@ static void make_main_thread(void ) {
     list_append(&thread_all_list, &main_thread->all_list_tag);
 }
 
+void dbgfunc(){
+    return;
+}
 // 任务调度器
 void schedule() {
     ASSERT(intr_get_status() == INTR_OFF ) ;
@@ -108,11 +128,17 @@ void schedule() {
 
     ASSERT(!list_empty(&thread_ready_list));
 
+    thread_tag = NULL;
     thread_tag = list_pop(&thread_ready_list);
     struct task_struct* next = elem2enyrt(struct task_struct, general_tag, thread_tag);
+    //struct task_struct* next = (struct task_struct*)((uint32_t)thread_tag & 0xfffff000);
     next->status = TASK_RUNNING;
-
+    put_str(next->name);
     process_activate(next);
+    //put_str("ok!\n\n");
+    if(next->pgdir!=NULL) {
+        dbgfunc();
+    }
     switch_to(cur, next);
 }
 
@@ -120,6 +146,7 @@ void thread_init(void) {
     put_str("thread_init start\n");
     list_init(&thread_all_list);
     list_init(&thread_ready_list);
+    lock_init(&pid_lock);
     make_main_thread();
     put_str("thread_init done\n");
 }

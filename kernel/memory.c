@@ -159,14 +159,14 @@ void* get_kernel_pages(uint32_t pg_cnt) {
 void* get_user_pages(uint32_t pg_cnt) {
     lock_acquire(&user_pool.lock);
     void* vaddr = malloc_page(PF_USER, pg_cnt);
-    memset(vaddr, 0, pg_cnt * PG_SIZE);
+    if(vaddr!=NULL) memset(vaddr, 0, pg_cnt * PG_SIZE);
     lock_release(&user_pool.lock);
     return vaddr;
 }
 
 /* 将地址vaddr 与内存池中的一页相关联, 仅支持一页内存分配*/
 void* get_a_page(enum pool_flags pf, uint32_t vaddr) {
-    struct pool* mem_pool = pf & PF_KERNEL ? &kernel_pool : &user_pool;
+    struct pool* mem_pool = (pf == PF_KERNEL) ? &kernel_pool : &user_pool;
     lock_acquire(&mem_pool->lock);
     struct task_struct* cur = running_thread();
     int32_t bit_idx = -1;

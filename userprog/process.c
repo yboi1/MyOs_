@@ -12,8 +12,10 @@
 
 extern void intr_exit(void);
 
+// 错误出在这里?
 /* 构建用户进程初始上下文信息 */
 void start_process(void* filename_) {
+	put_str("start_process\n");
 	void* function = filename_;
 	struct task_struct* cur = running_thread();
 	cur->self_kstack += sizeof(struct thread_stack);
@@ -99,6 +101,9 @@ void create_user_vaddr_bitmap(struct task_struct* user_prog) {
 	bitmap_init(&user_prog->userprog_vaddr.vaddr_bitmap);
 }
 
+void func(){
+
+}
 /* 创建用户进程 */
 void process_execute(void* filename, char* name) {
 	// 用户进程PCB，由内核来维护，因此在内核空间中申请
@@ -108,10 +113,9 @@ void process_execute(void* filename, char* name) {
 	// 创建用户进程虚拟地址位图
 	create_user_vaddr_bitmap(thread);
 	// 初始化线程栈，通过kernel_thread去执行start_process(filename)
-	thread_create(thread, start_process, filename);
+	thread_create(thread, start_process, filename);	
 	// 创建用户进程使用的页目录表
 	thread->pgdir = create_page_dir();
-	
 
 	enum intr_status old_status = intr_disable();
 	ASSERT(!elem_find(&thread_ready_list, &thread->general_tag));
@@ -120,6 +124,5 @@ void process_execute(void* filename, char* name) {
 	ASSERT(!elem_find(&thread_all_list, &thread->all_list_tag));
 	list_append(&thread_all_list, &thread->all_list_tag);
 
-	
 	intr_set_status(old_status);
 }

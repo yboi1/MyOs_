@@ -5,7 +5,7 @@
 #include "print.h"
 
 
-#define IDT_DESC_CNT 0x30           // 目前支持的中断数
+#define IDT_DESC_CNT 0x81           // 目前支持的中断数
 #define PIC_M_CTRL 0x20            // 主片的控制端口0x20
 #define PIC_M_DATA 0x21            // 主片的数据端口0x21
 #define PIC_S_CTRL 0xa0            // 从片的控制端口0xa0
@@ -35,6 +35,8 @@ extern struct gate_desc idt[IDT_DESC_CNT];
 
 
 extern intr_handler intr_entry_table[IDT_DESC_CNT];
+
+extern uint32_t syscall_handler(void);
 
 // 初始化可编程中断控制器 8259A
 static void pic_init(void){
@@ -66,7 +68,6 @@ static void pic_init(void){
     put_str( "      pic_init done\n");
 }
 
-
 /* 创建中断门描述符 */
 static void make_idt_desc(struct gate_desc* p_gdesc, uint8_t attr, intr_handler function){
     p_gdesc->func_offset_low_word = (uint32_t )function & 0x0000FFFF;
@@ -78,10 +79,13 @@ static void make_idt_desc(struct gate_desc* p_gdesc, uint8_t attr, intr_handler 
 
 /* 初始化中断描述符表 */
 static void idt_desc_init(void){
-    int i;
+    int i, lastindex = IDT_DESC_CNT - 1;
     for(i = 0; i < IDT_DESC_CNT; i++){
         make_idt_desc(&idt[i], IDT_DESC_ATTR_DPL0, intr_entry_table[i]);
     }
+
+    // 为系统调用申请单独的函数
+    make_idt_desc(&idt[lastindex], IDT_DESC_ATTR_DPL3, syscall_handler);
     put_str(" idt_desc_init done\n");
 }
 
